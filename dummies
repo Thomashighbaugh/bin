@@ -1,0 +1,7 @@
+#!/bin/env bash
+
+echo "Where Would You Like the Dummies"
+
+read -p DUMMIESPATH
+
+cp -rf $HOME/lib/dummies/* $DUMMIESPATH
