@@ -1,7 +1,0 @@
-#!/bin/bash
-
-
-echo "Copying Over the Template ReadMe Right Now!"
-cp -rvf ~/lib/README/README.md ${PWD}
-
-echo "Done!"
