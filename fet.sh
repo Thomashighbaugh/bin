@@ -246,8 +246,8 @@ for i in $info; do
 		wm) print wm "${wm##*/}";;
 		up) print up "$up";;
 		gtk) print gtk "${gtk# }";;
-		cpu) print cpu "$vendor$cpu";;
-		mem) print mem "$mem";;
+		#cpu) print cpu "$vendor$cpu";;
+		#mem) print mem "$mem";;
 		kern) print kern "$kernel";;
 		term) print term "$term";;
 		user) printf '%7s@%s\n' "$USER" "$host";;
