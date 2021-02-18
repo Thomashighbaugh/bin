@@ -8,7 +8,7 @@ git pull
 echo "Backing Up Everything In Current Directory"
 git add --all . | tee -a README.md
 
-read -p "Enter The Commit Message : " input
+read -rp "Enter The Commit Message : " input
 
 echo "Committing To The Local Repository..."
 git commit -m "$input"
