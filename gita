@@ -14,6 +14,6 @@ echo "Committing To The Local Repository..."
 git commit -m "$input"
 
 echo "Pushing Local Files To Github..."
-git push -u origin main --force
-
+#git push -u origin main --force
+git push --force
 echo "Git Push Completed!"
