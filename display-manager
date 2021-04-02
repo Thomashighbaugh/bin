@@ -32,19 +32,19 @@ case "$inp" in
     1)
         echo "Starting Awesome Window Manager"
         echo
-        xinit awesome
+        awesome | xinit
         exit 1
     ;;
     2)
         echo "Starting XFCE4"
         echo
-        xinit xfce4
+        xinit exec xfce4
         exit 1
     ;;
     3)
         echo "Starting Gnome"
         echo
-        xinit gnome
+        xinit  gnome
         exit 1
     ;;
     5)
