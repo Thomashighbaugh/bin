@@ -1,0 +1,20 @@
+des=$(echo -en "Awesome|bspwm|Openbox" | rofi -sep "|" -dmenu -i -p 'Xephyr' -font "FontAwesome 20" -dpi 196) # Make selection prompt
+
+if [ $des = "Awesome" ]; then # If selection is reload
+
+    Xephyr -br -ac -noreset -screen 2560x1440 :1
+    DISPLAY=:1 awesome
+
+elif [ $des = "bspwm" ]; then # If selection is lock
+
+    Xephyr -br -ac -noreset -screen 2560x1440 :2
+    DISPLAY=:2 bspwm
+
+elif [ $des = "Openbox" ]; then # If selection is lock
+
+    Xephyr -br -ac -noreset -screen 2560x1440 :3
+    DISPLAY=:3 openbox
+
+fi
+
+exit 0 # Return exit code 0

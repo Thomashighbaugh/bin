@@ -1,24 +1,11 @@
 #!/bin/bash
 #vim: set expandtab tabstop=4 shiftwidth=4 softtabstop=4:
+# Thomas Leon Highbaugh
 #
-# Author : Nicolas Brousse
+# Based on work by: Nicolas Brousse
 #
 # Notes :
-#   This script is a simple "helper" to configure your sysctl.conf on linux
-#   There is no silver bullet. Don't expect the perfect setup, review comments
-#   and adapt the parameters to your needs and application usage.
-#
 #   Use this script at your OWN risk. There is no guarantee whatsoever.
-#
-# License :
-#   This work is licenced under the CC-GNU LGPL version 2.1 or later.
-#   To view a copy of this licence, visit http://creativecommons.org/licenses/LGPL/2.1/
-#   or send a letter to :
-#
-#           Creative Commons
-#           171 Second Street, Suite 300
-#           San Francisco, California 94105, USA
-#
 
 host=$(hostname)
 
@@ -37,21 +24,21 @@ shmmax=$(echo "$mem_bytes * 0.90" | bc | cut -f 1 -d '.')
 shmall=$(expr $mem_bytes / $(getconf PAGE_SIZE))
 max_orphan=$(echo "$mem_bytes * 0.10 / 65536" | bc | cut -f 1 -d '.')
 file_max=$(echo "$mem_bytes / 4194304 * 256" | bc | cut -f 1 -d '.')
-max_tw=$(($file_max*2))
+max_tw=$(($file_max * 2))
 min_free=$(echo "($mem_bytes / 1024) * 0.01" | bc | cut -f 1 -d '.')
 
 if [ "$1" != "ssd" ]; then
     vm_dirty_bg_ratio=5
-    vm_dirty_ratio=15
+    vm_dirty_ratio=7
 else
     # This setup is generally ok for ssd and highmem servers
     vm_dirty_bg_ratio=3
     vm_dirty_ratio=5
 fi
 
->/etc/sysctl.conf cat << EOF 
+cat >/etc/sysctl.conf <<EOF
 
-# Disable syncookies (syncookies are not RFC compliant and can use too muche resources)
+# Disable syncookies (syncookies are not RFC compliant and can use too much resources)
 net.ipv4.tcp_syncookies = 0
 
 # Basic TCP tuning
@@ -100,9 +87,6 @@ net.ipv4.conf.default.rp_filter = 0
 # Enable fast recycling TIME-WAIT sockets
 net.ipv4.tcp_tw_recycle = 1
 
-# TODO : change TCP_SYNQ_HSIZE in include/net/tcp.h
-# to keep TCP_SYNQ_HSIZE*16&lt;=tcp_max_syn_backlog
-net.ipv4.tcp_max_syn_backlog = 20000
 
 # tells the kernel how many TCP sockets that are not attached
 # to any user file handle to maintain
