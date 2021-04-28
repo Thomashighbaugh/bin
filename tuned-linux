@@ -1,40 +1,51 @@
 #!/bin/bash
 #vim: set expandtab tabstop=4 shiftwidth=4 softtabstop=4:
+# Tuned Linux
+#
 # Thomas Leon Highbaugh
 #
-# Based on work by: Nicolas Brousse
+# Based on work by: Nicolas Brousse & juancarlospaco
 #
 # Notes :
 #   Use this script at your OWN risk. There is no guarantee whatsoever.
+#!/usr/bin/env bash
+## ANSI Colors (FG & BG)
+RED="$(printf '\033[31m')" GREEN="$(printf '\033[32m')" ORANGE="$(printf '\033[33m')" BLUE="$(printf '\033[34m')"
+MAGENTA="$(printf '\033[35m')" CYAN="$(printf '\033[36m')" WHITE="$(printf '\033[37m')" BLACK="$(printf '\033[30m')"
+REDBG="$(printf '\033[41m')" GREENBG="$(printf '\033[42m')" ORANGEBG="$(printf '\033[43m')" BLUEBG="$(printf '\033[44m')"
+MAGENTABG="$(printf '\033[45m')" CYANBG="$(printf '\033[46m')" WHITEBG="$(printf '\033[47m')" BLACKBG="$(printf '\033[40m')"
 
-host=$(hostname)
+## Banner
+clear
+cat <<-_EOF_
+	${CYAN}┌─────────────────────────────────────────────────────────────────────────────┐
+	│  ${MAGENTA}                                                                           ${CYAN}│
+	│  ${MAGENTA} _______                       __   _____   __                             ${CYAN}│
+	│  ${MAGENTA}|_     _|.--.--.-----.-----.--|  | |     |_|__|.-----.--.--.--.--.         ${CYAN}│
+	│  ${MAGENTA}  |   |  |  |  |     |  -__|  _  | |       |  ||     |  |  |_   _|         ${CYAN}│
+	│  ${MAGENTA}  |___|  |_____|__|__|_____|_____| |_______|__||__|__|_____|__.__|         ${CYAN}│
+	└─────────────────────────────────────────────────────────────────────────────┘                                                                  
+_EOF_
 
-ARCH=$(uname -m)
+host=$(cat /etc/hostname)
 
-which bc
-if [ $? -ne 0 ]; then
-    echo "This script require GNU bc, cf. http://www.gnu.org/software/bc/"
-    echo "On Linux Debian/Ubuntu you can install it by doing : apt-get install bc"
-fi
 
-echo "Update sysctl for $host"
+
+
+function sysctl() {
+echo "${GREEN}" "Update sysctl for $host"
 
 mem_bytes=$(awk '/MemTotal:/ { printf "%0.f",$2 * 1024}' /proc/meminfo)
 shmmax=$(echo "$mem_bytes * 0.90" | bc | cut -f 1 -d '.')
-shmall=$(expr $mem_bytes / $(getconf PAGE_SIZE))
+shmall=$( $mem_bytes / "$(getconf PAGE_SIZE)")
 max_orphan=$(echo "$mem_bytes * 0.10 / 65536" | bc | cut -f 1 -d '.')
 file_max=$(echo "$mem_bytes / 4194304 * 256" | bc | cut -f 1 -d '.')
 max_tw=$(($file_max * 2))
 min_free=$(echo "($mem_bytes / 1024) * 0.01" | bc | cut -f 1 -d '.')
 
-if [ "$1" != "ssd" ]; then
-    vm_dirty_bg_ratio=5
-    vm_dirty_ratio=7
-else
-    # This setup is generally ok for ssd and highmem servers
     vm_dirty_bg_ratio=3
     vm_dirty_ratio=5
-fi
+
 
 cat >/etc/sysctl.conf <<EOF
 
@@ -147,4 +158,170 @@ kernel.shmall = $shmall
 EOF
 
 /sbin/sysctl -p /etc/sysctl.conf
+echo ${BLUE} "sysctl.conf has been written successfully"
+
+}
+
+function pacman() {
+	sudo mkdir -p  /etc/pacman.d/
+	
+	echo "${GREEN}" "The following prompts will ask you if you would like to eliminate various modules from paman I am unlikely to use and thus can strip from my system. Consider each carefully, as your needs will undoubtably different from mine own."
+
+
+read -rp ".PYC Python bytecode cache files"  response  
+response=${response,,}
+case "$response" in 
+   [yY])  echo " NoExtract = usr/bin/__pycache__/* " >> /etc/pacman.d/tuned.conf ;;
+   ?) echo ${RED} "declined" "${WHITE}";;
+esac
+
+
+read -rp "Non-English Locale translations"  response  
+response=${response,,}
+case "$response" in 
+   [yY])  echo " NoExtract = usr/share/locale/* usr/share/X11/locale/* usr/share/i18n/* !*locale*/en*/* !usr/share/i18n/charmaps/UTF-8.gz !usr/share/*locale*/locale.* !usr/share/*locales/en_?? !usr/share/*locales/i18n* !usr/share/*locales/iso* !usr/share/*locales/trans* " >> /etc/pacman.d/tuned.conf ;;
+   ?) echo ${RED} "declined" "${WHITE}" ;;
+esac
+
+read -rp "Non-English Locales in VIM"  response  
+response=${response,,}
+case "$response" in 
+   [yY])  echo " NoExtract =usr/share/vim/vim*/lang/* " >> /etc/pacman.d/tuned.conf ;;
+   ?) echo ${RED} "declined" "${WHITE}" ;;
+esac
+
+
+read -rp "PGP Non-English plain-text help local documentation"  response  
+response=${response,,}
+case "$response" in 
+   [yY])  echo " NoExtract = usr/share/gnupg/help.*.txt " >> /etc/pacman.d/tuned.conf ;;
+   ?) echo ${RED} "declined" "${WHITE}" ;;
+esac
+
+
+read -rp "Fish command line shell"  response  
+response=${response,,}
+case "$response" in 
+   [yY])  echo " NoExtract = usr/share/gnupg/help.*.txt " >> /etc/pacman.d/tuned.conf ;;
+   ?) echo ${RED} "declined" "${WHITE}" ;;
+esac
+
+read -rp "GTK-Doc HTML help local documentation"  response  
+response=${response,,}
+case "$response" in 
+   [yY])  echo " NoExtract = usr/share/gtk-doc/html/* " >> /etc/pacman.d/tuned.conf ;;
+   ?) echo ${RED} "declined" "${WHITE}" ;;
+esac
+
+
+read -rp "Google Chrome devices like Chromebook ChromeCast Google Nest Google Assistant "  response  
+response=${response,,}
+case "$response" in 
+   [yY])  echo " NoExtract = usr/lib/modules/[1-9]*-ARCH/kernel/drivers/platform/chrome* " >> /etc/pacman.d/tuned.conf ;;
+   ?) echo ${RED} "declined" "${WHITE}" ;;
+esac
+~                       
+
+read -rp "Non-English plain-text help local documentation"  response  
+response=${response,,}
+case "$response" in 
+   [yY])  echo " NoExtract =usr/share/doc/* usr/share/help/* !usr/share/help/en* " >> /etc/pacman.d/tuned.conf ;;
+   ?) echo ${RED} "declined" "${WHITE}" ;;
+esac
+
+
+
+read -rp "  Integrated Services Digital Network ISDN Network router and modem drivers of any kind from 1990 or older"  response  
+response=${response,,}
+case "$response" in 
+   [yY])  echo " NoExtract = usr/lib/modules/[1-9]*-ARCH/kernel/drivers/isdn* " >> /etc/pacman.d/tuned.conf ;;
+   ?) echo ${RED} "declined" "${WHITE}" ;;
+esac
+
+
+read -rp " BATMAN Network router and modem drivers of any kind"  response  
+response=${response,,}
+case "$response" in 
+   [yY])  echo " NoExtract = usr/lib/modules/[1-9]*-ARCH/kernel/net/batman-adv* " >> /etc/pacman.d/tuned.conf ;;
+   ?) echo ${RED} "declined" "${WHITE}" ;;
+esac
+
+read -rp "  InfraRed IR drivers of any kind like infrared remote controls"  response  
+response=${response,,}
+case "$response" in 
+   [yY])  echo " NoExtract = usr/lib/modules/[1-9]*-ARCH/kernel/drivers/net/irda* usr/lib/modules/[1-9]*-ARCH/kernel/net/irda*" >> /etc/pacman.d/tuned.conf ;;
+   ?) echo ${RED} "declined" "${WHITE}" ;;
+esac
+
+read -rp "  Sun MicroSystems Remote Procedure Call SunRPC for Sun hardware drivers of any kind "  response  
+response=${response,,}
+case "$response" in 
+   [yY])  echo " NoExtract =usr/lib/modules/[1-9]*-ARCH/kernel/net/sunrpc* " >> /etc/pacman.d/tuned.conf ;;
+   ?) echo ${RED} "declined" "${WHITE}" ;;
+esac
+
+read -rp " Parallel port printer port drivers of any kind: "  response  
+response=${response,,}
+case "$response" in 
+   [yY])  echo " NoExtract =  usr/lib/modules/[1-9]*-ARCH/kernel/drivers/parport* " >> /etc/pacman.d/tuned.conf ;;
+   ?) echo ${RED} "declined" "${WHITE}" ;;
+esac
+
+read -rp "NFC Near Field Communication drivers of any kind "  response  
+response=${response,,}
+case "$response" in 
+   [yY])  echo " NoExtract = usr/lib/modules/[1-9]*-ARCH/kernel/drivers/nfc* usr/lib/modules/[1-9]*-ARCH/kernel/net/nfc* " >> /etc/pacman.d/tuned.conf ;;
+   ?) echo ${RED} "declined" "${WHITE}" ;;
+esac
+
+read -rp " Apple Mac Thunderbolt drivers of any kind "  response  
+response=${response,,}
+case "$response" in 
+   [yY])  echo " NoExtract = usr/lib/modules/[1-9]*-ARCH/kernel/drivers/thunderbolt* " >> /etc/pacman.d/tuned.conf ;;
+   ?) echo ${RED} "declined" "${WHITE}" ;;
+esac
+
+read -rp " PCMCIA Notebook pluggable card drivers of any kind from year 1990 or older "  response  
+response=${response,,}
+case "$response" in 
+   [yY])  echo " NoExtract = usr/lib/modules/[1-9]*-ARCH/kernel/drivers/pcmcia* " >> /etc/pacman.d/tuned.conf ;;
+   ?) echo ${RED} "declined" "${WHITE}" ;;
+esac
+
+read -rp " HAM Radio Hobby radio drivers of any kind "  response  
+response=${response,,}
+case "$response" in 
+   [yY])  echo " NoExtract =  usr/lib/modules/[1-9]*-ARCH/kernel/drivers/net/hamradio* " >> /etc/pacman.d/tuned.conf ;;
+   ?) echo ${RED} "declined" "${WHITE}" ;;
+esac
+read -rp "  WiMax wireless drivers of any kind "  response  
+response=${response,,}
+case "$response" in 
+   [yY])  echo " NoExtract = usr/lib/modules/[1-9]*-ARCH/kernel/drivers/net/wimax* usr/lib/modules/[1-9]*-ARCH/kernel/net/wimax*
+ " >> /etc/pacman.d/tuned.conf ;;
+   ?) echo "${RED}" "declined" "${WHITE}" ;;
+esac
+
+read -rp "  FireWire drivers:  "  response  
+response=${response,,}
+case "$response" in 
+   [yY])  echo " NoExtract = usr/lib/modules/[1-9]*-ARCH/kernel/drivers/firewire* usr/lib/modules/[1-9]*-ARCH/kernel/drivers/infiniband*
+ " >> /etc/pacman.d/tuned.conf ;;
+   ?) echo "${RED}" "declined" "${WHITE}" ;;
+esac 
+  InfiniBand router and modem drivers:
+read -rp " CDROM optical drive drivers: "  response  
+response=${response,,}
+case "$response" in 
+   [yY])  echo " NoExtract = usr/lib/modules/[1-9]*-ARCH/kernel/drivers/cdrom*
+ 
+ " >> /etc/pacman.d/tuned.conf ;;
+   ?) echo "${RED}" "declined" "${WHITE}" ;;
+esac
+}
+
+sysctl 
+echo "${BLUE}" ""
+pacman 
+
 exit $?
