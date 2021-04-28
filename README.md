@@ -44,7 +44,7 @@ Its called `fet.sh` and like the above, its also not my own work product but for
 | screenshots | an import for my other wm environments that comes from my awesomewm configuration _thanks manilarome for doing the legwork, I just ported to my uses_. Its a shell script with some lua that wraps the maim command and produces notification afterwards letting the user know things worked out |
 | shell-struct | A script that is deprecated thanks to vim's template feature but once was what I used for shell scripts to create a template for consistency purposes |
 | svg-color | Don't just use this! This is meant to be a series of color replacements with sed for editing svg icons when I am bring in icons from other icon packs to one of my own but need to change their colors to reflect my colorscheme |
-| tuned-linux | Don't use this legacy script, it is too much a work in progress that I am starting to update for modern sysctl.conf like purposes. |
+| tuned-linux | Only needed once, might add its functionality to installation script for dotfiles, basically it strips pacman of extracting useless modules and creates a sysctl.conf that is functional locally |
 | urxvt-config | sometimes, I like torturing myself with non-functional 'minimalist' terminal emulators that can't support icons without dubious patching so I use urxvt and this script configures it |
 | vm2md | A semi-functional script that converted my vimwiki from vimwiki format to markdown when I decided I preferred the syntax of the latter. |
 | zsh-history | for when my zsh history decides to become corrupted |
