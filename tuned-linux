@@ -76,7 +76,6 @@ echo "cubic" > /proc/sys/net/ipv4/tcp_congestion_control
 # Disable Core Dumps
 echo "0" > /proc/sys/fs/suid_dumpable
 # Enable ExecShield
-echo "1" > /proc/sys/kernel/exec-shield
 echo "1" > /proc/sys/kernel/randomize_va_space
 #### Network parameters for better security
 # Disable packet forwarding (if this machine is not a router)
@@ -116,9 +115,8 @@ echo "5" > /proc/sys/vm/swappiness
 #
 echo "20" > /proc/sys/vm/dirty_background_ratio
 #
-echo "25" > /proc/sys/vm/dirty_ratio)
+echo "25" > /proc/sys/vm/dirty_ratio
 
-/sbin/sysctl -p /etc/sysctl.conf
 echo ${BLUE} "sysctl.conf has been written successfully"
 
 }
