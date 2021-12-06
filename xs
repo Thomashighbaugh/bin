@@ -1,0 +1,143 @@
+#!/bin/bash
+#!/bin/env bash
+
+# Set a bunch of config test paths
+if [ -n "${XDG_CONFIG_DIR}" ] ; then
+ IFS=':' read -ra configs <<<"${XDG_CONFIG_DIR}"
+ for (( i=0; i<${#configs[@]}; i++)) do
+   configs[$i]="${configs[$i]}/fuzzypkg.conf"
+  done
+fi
+
+configs+=( "${HOME}/.fuzzypkg.conf" "${HOME}/.config/fuzzypkg.conf" )
+
+delay_exit() {
+  printf "\033]0;\a"
+  if [ -n "${FDELAY}" ] && [ "${FDELAY}" -gt 0 ] ; then
+    echo -e "\n"
+    read -n 1 -s -r -p "Press any key to continue"
+    echo -e "\n"
+  fi
+}
+
+main() {
+  trap delay_exit EXIT
+  SHELL="$(command -v bash)"
+
+  CL_KEY="alt-c" ; HP_KEY="alt-h" ;FL_KEY="alt-f"
+
+  for config in "${configs[@]}" ; do
+    if [ -f "${config}" ] ; then
+      #shellcheck disable=SC1090
+      source "${config}"
+      break
+    fi
+  done
+
+  [ -z "$HIDE_HEADER" ] && SHOW_HEADER=1
+
+
+  if command -v fzf > /dev/null 2>&1; then
+    FUZZYSEL=fzf
+    export FZF_DEFAULT_OPTS="--inline-info --marker=M"
+  elif command -f sk > /dev/null 2>&1; then
+    FUZZYSEL=sk
+    export SKIM_DEFAULT_OPTIONS="--inline-info"
+  else
+    echo "Unable to find fuzzy selector [fzf, sk]"
+    exit
+  fi
+
+  HEADER="[ENTER] Add/Remove selected [TAB] Toggle selection
+[${FL_KEY^^}] File list [${HP_KEY^^}] Homepage [${CL_KEY^^}] Changelog"
+  HEADER="${HEADER//\[/\\033\[0;32m\[}"
+  HEADER="${HEADER//\]/\]\\033\[0m}"
+  HEADER="$( echo -n -e "${HEADER}" )"
+
+  #shellcheck disable=SC2016
+  selected="$(
+    xbps-query -R --search= \
+      | sed -Er "s/(\[\*\].*)/$( printf "\033[0;32m" )\1$( printf "\033[0m" )/"\
+        | "${FUZZYSEL}" \
+          ${SHOW_HEADER:+--header="${HEADER}"} \
+          --prompt "  Package name > " \
+          --layout=reverse-list \
+          --cycle \
+          --preview="xq {2}" \
+          --preview-window=down:wrap \
+          --ansi -e -m \
+          --border=sharp \
+          --no-sort \
+          --bind "${FL_KEY}:execute[ xbps-query -v -R -f {2} | ${FUZZYSEL} --prompt '{2} > ' ]" \
+          --bind "${HP_KEY}:execute-silent[ xbps-query -p homepage -R '{2}' | xargs -Iurl xdg-open url & ]" \
+          --bind "${CL_KEY}:execute-silent[ xbps-query -p changelog -R '{2}'| xargs -Iurl xdg-open url & ]" \
+          ${1:+--query "$1"}
+  )"
+
+  # override FDELAY if nothing was selected
+  [ -z "${selected}" ] && FDELAY=0 exit
+
+  installed_re="(\[.\])[ ]([^ ]+)"
+
+  while read -r line; do
+    if [[ ${line} =~ ${installed_re} ]]; then
+      [ "${BASH_REMATCH[1]}" == "[-]" ] && INSTALL+=( "${BASH_REMATCH[2]}" ) || UNINSTALL+=( "${BASH_REMATCH[2]}" )
+    fi
+  done <<<"${selected}"
+
+  if [ "${EUID}" -eq 0 ]; then
+    PRIV=""
+  elif command -v doas > /dev/null 2>&1; then
+    PRIV="doas "
+  elif command -v sudo > /dev/null 2>&1; then
+    PRIV="sudo "
+  else
+    echo "Unable to execute as root, install one of [sudo, doas]"
+    exit 1
+  fi
+
+  if [ -n "${UNINSTALL[*]}" ]; then
+    UNINSTALL_CMD="xbps-remove -R ${UNINSTALL[*]}"
+    echo "Executing ${UNINSTALL_CMD}"
+    #shellcheck disable=SC2086
+    ${PRIV}${UNINSTALL_CMD}
+  fi
+  if [ -n "${INSTALL[*]}" ]; then
+    INSTALL_CMD="xbps-install -S ${INSTALL[*]}"
+    echo "Executing ${INSTALL_CMD}"
+    #shellcheck disable=SC2086
+    ${PRIV}${INSTALL_CMD}
+  fi
+}
+
+usage() {
+  cat <<EOF
+Usage: ${BASH_ARGV0##*/} search term
+Create a configuration file at one of:
+$( for config in "${configs[@]}" ; do echo -e "  \033[0;32m${config}\033[0m" ; done )
+Example:
+# Changelog key
+CL_KEY="alt-c"
+# Homepage key
+HP_KEY="alt-h"
+# Filelist key
+FL_KEY="alt-f"
+# Hide header that shows keybinds
+HIDE_HEADER=1
+See 'man fzf' for more keybind documentation.
+EOF
+}
+
+while getopts "h" opt ; do
+  case "${opt}" in
+    h|?)
+      usage
+      exit
+      ;;
+    *)
+      ;;
+  esac
+done
+
+echo -n -e "\033]2;${BASH_ARGV0##*/}\007"
+main "$@"
