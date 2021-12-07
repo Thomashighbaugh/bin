@@ -8,7 +8,7 @@
 
 f=3 b=4
 for j in f b; do
-  for i in {0..15}; do
+  for i in {0..8}; do
     printf -v $j$i %b "\e[${!j}${i}m"
   done
 done
