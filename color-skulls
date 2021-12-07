@@ -1,11 +1,9 @@
-
 #!/bin/bash
 #
 # ANSI color scheme script by pfh
 #
 # Initializing mod by lolilolicon from Archlinux
 # https://github.com/roberoonska/dotfiles/tree/master/colorscripts
-# https://github.com/jasolisdev/.dotfiles/blob/master/.bin/rice/skulls
 #
 
 f=3 b=4
@@ -19,6 +17,7 @@ rst=$'\e[0m'
 inv=$'\e[7m'
 w=$'\e[37m'
 cat << EOF
+
 $f1  ▄▄▄▄▄▄▄   $f2  ▄▄▄▄▄▄▄   $f3  ▄▄▄▄▄▄▄   $f4  ▄▄▄▄▄▄▄   $f5  ▄▄▄▄▄▄▄   $f6  ▄▄▄▄▄▄▄
 $f1▄█▀     ▀█▄ $f2▄█▀     ▀█▄ $f3▄█▀     ▀█▄ $f4▄█▀     ▀█▄ $f5▄█▀     ▀█▄ $f6▄█▀     ▀█▄
 $f1█         █ $f2█         █ $f3█         █ $f4█         █ $f5█         █ $f6█         █
