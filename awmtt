@@ -117,8 +117,7 @@ stop() {
 #}}}
 #{{{ Restart function
 restart() {
-    # TODO: (maybe use /tmp/.X{i}-lock files) Find a way to uniquely identify an awesome instance
-    # (without storing the PID in a file). Until then all instances spawned by this script are restarted...
+ 
     echo -n "Restarting Awesome... "
     for i in $(pgrep -f "awesome -c"); do
         kill -s SIGHUP $i;
@@ -136,7 +135,7 @@ run() {
 #{{{ Theme function
 theme() {
     # List themes
-    theme_list() { #TODO: list only directories
+    theme_list() { 
         if [[ -d $(dirname "$RC_FILE")/themes ]]; then
             ls /usr/share/awesome/themes $(dirname "$RC_FILE")/themes
         else
