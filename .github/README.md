@@ -24,3 +24,5 @@ A repository with scripts I use regularly stored at `~~/.local/share/bin` which 
 | `xfce4-restart` | Restarts the components of XFCE4 all at once |
 | `xs` | A fuzzy package finder for Void Linux (current distro) that eases the use of its package manager's search considerbaly |
 | `zsh-history` | for when my zsh history decides to become corrupted |
+
+###

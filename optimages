@@ -1,0 +1,51 @@
+#!/bin/bash
+
+cr="$(tput setaf 1)"
+cg="$(tput setaf 2)"
+cy="$(tput setaf 3)"
+cm="$(tput setaf 5)"
+sb="$(tput bold)"
+sn="$(tput sgr0)"
+
+print() {
+    case "$1" in
+    t | title)
+        shift
+        printf "%s\n" "${sb}${cg}[###]$*${sn}"
+        ;;
+    s | step)
+        shift
+        printf "%s\n" "${sb}${cm}[===]$*${sn}"
+        ;;
+    e | error)
+        shift
+        printf "%s\n" "${sb}${cr}[!!!]$*${sn}"
+        exit 1
+        ;;
+    w | warning)
+        shift
+        printf "%s\n" "${sb}${cy}[:::]$*${sn}"
+        ;;
+    *)
+        printf '%s\n' "$*"
+        ;;
+    esac
+}
+
+print t "Optimizing PNG Images"
+print t "--------------------------------------"
+print s "Optipng"
+for i in **/*.png; do optipng "$i" && echo "$i"; done
+print s "Optipng Done"
+print s "--------------------------------------"
+print s "Oxipng"
+for i in **/*.png; do oxipng "$i" && echo "$i"; done
+print s "Oxipng Done"
+print s "--------------------------------------"
+print t "SVG Optimizations"
+print t "--------------------------------------"
+print s "SVGO"
+for i in **/*.svg; do svgo --pretty "$i" && echo "$i"; done
+print s "SVGO Done"
+print s "--------------------------------------"
+print w "All Done"
