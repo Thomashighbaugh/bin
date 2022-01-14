@@ -1,0 +1,21 @@
+
+#!/bin/sh
+# delete git history, keep the code
+# http://stackoverflow.com/a/26000395
+
+if [ $# -ne 1 ]
+then
+    echo "usage: `basename "$0"` commit_message"
+else
+    git checkout --orphan latest_branch
+    git prune --progress # delete all the objects w/o references
+    git gc --aggressive  # aggressively collect garbage; may take a lot of time on large repos
+    git add -A
+    git commit -am "$1"
+
+    git branch -D main
+    git branch -m main
+    git push -f origin main
+fi
+
+
