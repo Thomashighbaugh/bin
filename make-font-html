@@ -7,13 +7,13 @@ cat > fonts.html << __HEADER
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <title>Sample of local fonts matching '$1'</title>
 </head>
-<body style="  display: grid;  grid-template-columns: repeat(5, 366.7px); border: 2px solid #000 ">
+<body style="  display: grid;  grid-template-columns: repeat(4, 25%); border: 6px solid #000; max-width:100vw; border-radius:12px; ">
 __HEADER
 
 fc-list --format='%{family}\n' $1 | sort -u | while IFS='' read -r fontfamily
 do
     cat >> fonts.html << __BODY
-    <div style="font-family: '${fontfamily}', 'serif'; border: 3px solid #000; border-collapse:collapse; overflow-wrap: break-word; ">
+		<div style="font-family: '${fontfamily}', 'serif'; border: 3px solid #000;  overflow-wrap: break-word; overflow:hidden; max-width:100%; height:15rem; ">
 
         <h1>${fontfamily}</h1>
         <p>
