@@ -1,0 +1,168 @@
+#!/bin/bash
+# ---------------------------------------------------------------------------- #
+# ---------------------------------------------------------------------------- #
+#                                Print Statement                               #
+# ---------------------------------------------------------------------------- #
+# Assign Terminal Color Variables
+cr="$(tput setaf 1)"
+cg="$(tput setaf 2)"
+cy="$(tput setaf 3)"
+cm="$(tput setaf 5)"
+sb="$(tput bold)"
+sn="$(tput sgr0)"
+# ---------------------------------------------------------------------------- #
+# Statement providing color to the stdout
+print() {
+    case "$1" in
+    t | title)
+        shift
+        printf "%s\n" "${sb}${cg}[###]$*${sn}" | tee -a /tmp/install-log.txt
+        ;;
+    s | step)
+        shift
+        printf "%s\n" "${sb}${cm}[===]$*${sn}" | tee -a /tmp/install-log.txt
+        ;;
+    e | error)
+        shift
+        printf "%s\n" "${sb}${cr}[!!!]$*${sn}" | tee -a /tmp/install-log.txt
+        exit 1
+        ;;
+    w | warning)
+        shift
+        printf "%s\n" "${sb}${cy}[:::]$*${sn}" | tee -a /tmp/install-log.txt
+        ;;
+    *)
+        printf '%s\n' "$*" | tee -a /tmp/install-log.txt
+        ;;
+    esac
+}
+# --------------------------------------------------- #
+#                        Title                        #
+# --------------------------------------------------- #
+print t "                  __                                "
+print t "     .--.--.----.|  |.-----.---.-.-----.-----.----. "
+print t "     |_   _|  __||  ||  -__|  _  |     |  -__|   _| "
+print t "     |__.__|____||__||_____|___._|__|__|_____|__|   "
+print t ""
+print t " ##################################################### "
+echo
+# --------------------------------------------------- #
+#                    Configuration                    #
+# --------------------------------------------------- #
+
+package=/var/cache/xbps
+exeption=($HOME/.cache/pkg $HOME/.cache/archives)
+cache="$HOME/.cache"
+trash="$HOME/.local/share/Trash/files"
+journal="/var/log"
+desktop="$HOME/.local/share/applications"
+temp="/tmp"
+config=$PWD/.xcleaner
+# -------------------- Make File -------------------- #
+echo "$package" >>"$config"
+echo "$cache" >>"$config"
+echo "$trash" >>"$config"
+echo $journal >>"$config"
+echo "$desktop" >>"$config"
+
+if [ -f "$config" ]; then
+    for i in $(cat "$config"); do
+        if [ -d "$i" ]; then
+            cnt=$(sudo ls "$i" | wc -l)
+            echo "$i : $cnt"
+        fi
+    done
+fi
+# --------------------------------------------------- #
+#                    Cleaning Stage                   #
+# --------------------------------------------------- #
+# ------------------ Check Package ------------------ #
+
+print s "  Do you want to remove the package cache (y/n)? "
+read -r answer
+
+if [ "$answer" != "${answer#[Yy]}" ]; then
+    print t " Yes!"
+    count=$(sudo ls -a "$package" | sed -e "/\.$/d" | wc -l 2>/dev/null)
+
+    if [[ -z "$count" ]] || [[ $count -eq 0 ]]; then
+        print s "  Package cache is empty"
+    else
+        sudo rm -rf "$package"/*
+        print s "  Package cache is cleaned"
+    fi
+else
+    print e "No!"
+fi
+
+# ------------------- Check Cache ------------------- #
+
+print s "  Do you want to remove the user cache (y/n)? "
+read -r answer
+
+if [ "$answer" != "${answer#[Yy]}" ]; then
+    print t "Yes!"
+    count=$(ls -a "$cache" | sed -e "/\.$/d" | wc -l 2>/dev/null)
+
+    if [[ -z "$count" ]] || [[ $count -eq 0 ]]; then
+        print s "   User cache is empty"
+    else
+        #sudo rm -rf $cache/*
+        print s "   Cache is cleaned"
+    fi
+else
+    print e "No!"
+fi
+
+# ------------------- Check Trash ------------------- #
+
+print s "  Do you want to remove trash (y/n)? "
+read -r answer
+
+if [ "$answer" != "${answer#[Yy]}" ]; then
+    print t "Yes!"
+    count=$(ls -a "$trash" | sed -e "/\.$/d" | wc -l 2>/dev/null)
+
+    if [[ -z "$count" ]] || [[ $count -eq 0 ]]; then
+        print s "   Trash is empty"
+    else
+        sudo rm -rf "$trash"/*
+        "Trash is cleaned"
+    fi
+else
+    print e "No!"
+fi
+
+# ------------------ Check Journal ------------------ #
+
+print s " Do you want to remove logfiles (y/n)? "
+read -r answer
+
+if [ "$answer" != "${answer#[Yy]}" ]; then
+    print t "Yes!"
+    count=$(sudo ls -a $journal | sed -e "/\.$/d" | wc -l 2>/dev/null)
+
+    if [[ -z "$count" ]] || [[ $count -eq 0 ]]; then
+        print s "  Log is empty"
+    else
+        sudo rm -rf $journal/*
+        print s " Log is cleaned"
+    fi
+else
+    print e "No!"
+fi
+
+# ------------------ Check Memory ------------------ #
+
+print s " Do you want to remove desktop (y/n)? "
+read -r answer
+
+if [ "$answer" != "${answer#[Yy]}" ]; then
+    print t "Yes!"
+    for files in $temp/*; do
+        sudo rm -f "$files" 2>/dev/null
+    done
+    print s "  Temporary files is cleaned"
+else
+    print e "No!"
+fi

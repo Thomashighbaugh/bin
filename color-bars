@@ -27,7 +27,7 @@ done
 
 for y in $(seq 0 4); do
   printf %s '           '
-  for color in 8 15 8 15 8 15 8 15 8 15 8 15 8 15 8 15 8  15 8 15 8 15 8 15 8 15 8 15  ; do
+  for color in 8 15 8 15 8 15 8 15 8 15 8 15 8 15 8 15 8 15 8 15 8 15 8 15 8 15 8 15; do
     tput setab ${color}
     printf %s '  '
   done
