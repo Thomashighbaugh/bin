@@ -16,20 +16,20 @@ print() {
     case "$1" in
     t | title)
         shift
-        printf "%s\n" "${sb}${cg}[###]$*${sn}" | tee -a /tmp/install-log.txt
+        printf "%s\n" " ${sb}${cg}[###]$*${sn} " | tee -a /tmp/install-log.txt
         ;;
     s | step)
         shift
-        printf "%s\n" "${sb}${cm}[===]$*${sn}" | tee -a /tmp/install-log.txt
+        printf "%s\n" " ${sb}${cm}[|||]$*${sn} " | tee -a /tmp/install-log.txt
         ;;
     e | error)
         shift
-        printf "%s\n" "${sb}${cr}[!!!]$*${sn}" | tee -a /tmp/install-log.txt
+        printf "%s\n" " ${sb}${cr}[!!!]$*${sn} " | tee -a /tmp/install-log.txt
         exit 1
         ;;
     w | warning)
         shift
-        printf "%s\n" "${sb}${cy}[:::]$*${sn}" | tee -a /tmp/install-log.txt
+        printf "%s\n" " ${sb}${cy}[:::]$*${sn} " | tee -a /tmp/install-log.txt
         ;;
     *)
         printf '%s\n' "$*" | tee -a /tmp/install-log.txt
@@ -92,7 +92,7 @@ if [ "$answer" != "${answer#[Yy]}" ]; then
         print s "  Package cache is cleaned"
     fi
 else
-    print e "No!"
+    print e " No!"
 fi
 
 # ------------------- Check Cache ------------------- #
@@ -101,7 +101,7 @@ print s "  Do you want to remove the user cache (y/n)? "
 read -r answer
 
 if [ "$answer" != "${answer#[Yy]}" ]; then
-    print t "Yes!"
+    print t " Yes!"
     count=$(ls -a "$cache" | sed -e "/\.$/d" | wc -l 2>/dev/null)
 
     if [[ -z "$count" ]] || [[ $count -eq 0 ]]; then
@@ -111,7 +111,7 @@ if [ "$answer" != "${answer#[Yy]}" ]; then
         print s "   Cache is cleaned"
     fi
 else
-    print e "No!"
+    print e " No!"
 fi
 
 # ------------------- Check Trash ------------------- #
@@ -120,17 +120,17 @@ print s "  Do you want to remove trash (y/n)? "
 read -r answer
 
 if [ "$answer" != "${answer#[Yy]}" ]; then
-    print t "Yes!"
+    print t " Yes!"
     count=$(ls -a "$trash" | sed -e "/\.$/d" | wc -l 2>/dev/null)
 
     if [[ -z "$count" ]] || [[ $count -eq 0 ]]; then
         print s "   Trash is empty"
     else
-        sudo rm -rf "$trash"/*
+        sudo rm -rf "$trash"/* 2>/dev/null
         "Trash is cleaned"
     fi
 else
-    print e "No!"
+    print e " No!"
 fi
 
 # ------------------ Check Journal ------------------ #
@@ -139,7 +139,7 @@ print s " Do you want to remove logfiles (y/n)? "
 read -r answer
 
 if [ "$answer" != "${answer#[Yy]}" ]; then
-    print t "Yes!"
+    print t " Yes!"
     count=$(sudo ls -a $journal | sed -e "/\.$/d" | wc -l 2>/dev/null)
 
     if [[ -z "$count" ]] || [[ $count -eq 0 ]]; then
@@ -149,7 +149,7 @@ if [ "$answer" != "${answer#[Yy]}" ]; then
         print s " Log is cleaned"
     fi
 else
-    print e "No!"
+    print e " No!"
 fi
 
 # ------------------ Check Memory ------------------ #
@@ -158,11 +158,11 @@ print s " Do you want to remove desktop (y/n)? "
 read -r answer
 
 if [ "$answer" != "${answer#[Yy]}" ]; then
-    print t "Yes!"
+    print t " Yes!"
     for files in $temp/*; do
         sudo rm -f "$files" 2>/dev/null
     done
     print s "  Temporary files is cleaned"
 else
-    print e "No!"
+    print e "  No!"
 fi
