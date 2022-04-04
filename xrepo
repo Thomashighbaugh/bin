@@ -1,0 +1,7 @@
+#!/bin/sh
+
+REPO='https://mirrors.clarkson.edu/voidlinux/current'
+sudo mkdir -p /etc/xbps.d
+sudo cp -rvf /usr/share/xbps.d/*-repository-*.conf /etc/xbps.d/
+sudo sed -i 's|https://alpha.de.repo.voidlinux.org/|https://repo-us.voidlinux.org/|g' /etc/xbps.d/*-repository-*.conf
+echo "Mirror Changed!"
