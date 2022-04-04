@@ -1,7 +1,14 @@
 #!/bin/sh
 
-REPO='https://mirrors.clarkson.edu/voidlinux/current'
+# To select an alternative mirror, uncomment the mirror of your choice and
+# add a comment in front of the presently selected option.
+
+#REPO='https://alpha.de.repo.voidlinux.org/'
+#REPO='https://mirrors.servercentral.com/voidlinux/'
+#REPO='https://mirror.clarkson.edu/voidlinux/'
+REPO='https://repo-us.voidlinux.org/'
 sudo mkdir -p /etc/xbps.d
 sudo cp -rvf /usr/share/xbps.d/*-repository-*.conf /etc/xbps.d/
-sudo sed -i 's|https://alpha.de.repo.voidlinux.org/|https://repo-us.voidlinux.org/|g' /etc/xbps.d/*-repository-*.conf
+sudo sed -i "s|https://alpha.de.repo.voidlinux.org/|$REPO|g" /etc/xbps.d/*-repository-*.conf
+sudo xbps-install -S
 echo "Mirror Changed!"
