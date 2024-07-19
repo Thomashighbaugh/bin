@@ -9,6 +9,6 @@ git config --global user.email "thighbaugh@zoho.com"
 sudo git config --system core.editor vim
 git config --global credential.helper store
 git config --global push.default simple
-git add . 
+git add .
 git commit -m "first commit"
 echo "Git Repository Setup Complete!"

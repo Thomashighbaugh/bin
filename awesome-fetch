@@ -2,10 +2,12 @@
 # Author: https://github.com/rxyhn
 # Modifications: https://github.com/Thomashighbaugh
 
-
 user="${USER}"
 shell="$(basename ${SHELL})"
-distro=$(. /etc/os-release ; echo "$ID")
+distro=$(
+	. /etc/os-release
+	echo "$ID"
+)
 wm="$(xprop -id $(xprop -root -notype | awk '$1=="_NET_SUPPORTING_WM_CHECK:"{print $5}') -notype -f _NET_WM_NAME 8t | grep "WM_NAME" | cut -f2 -d \")"
 kernel="$(uname -r | cut -d '-' -f1)"
 

@@ -19,16 +19,16 @@ SCRIPTNAME="$1"
 # Date and time when the file was created
 DATE=$(date +%d.%m.%Y.-%H:%M:%S)
 
-check_input(){
-  # Check if the script name is not empty
-  if [ -z "$SCRIPTNAME" ]; then
-    echo "You need to enter the name of the bash script."
-    exit 1
-  fi
+check_input() {
+	# Check if the script name is not empty
+	if [ -z "$SCRIPTNAME" ]; then
+		echo "You need to enter the name of the bash script."
+		exit 1
+	fi
 }
 
-info_header(){
-  cat << _EOF_
+info_header() {
+	cat <<_EOF_
 $SHEBANG
 # $SEPARATOR
 # Info:
@@ -59,9 +59,9 @@ exit 0
 _EOF_
 }
 
-main(){
-  check_input
-  info_header "$@" > "$SCRIPTNAME"
+main() {
+	check_input
+	info_header "$@" >"$SCRIPTNAME"
 }
 
 main "$@"

@@ -9,7 +9,7 @@ echo "Backing up config & deleting git dir..."
 mv .git/config config
 rm -rf .git
 
-# Setup git 
+# Setup git
 echo "Setting up git repository..."
 git init
 git config --global user.name "Thomashighbaugh"

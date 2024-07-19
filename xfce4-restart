@@ -2,6 +2,6 @@
 
 killall xfce4-panel
 
-xfce4-panel & 
+xfce4-panel &
 
-xfwm4 --replace & 
+xfwm4 --replace &

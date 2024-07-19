@@ -1,6 +1,5 @@
 #! /bin/sh
 
-
 _usage() {
 	echo "Usage: $(basename "$0") <file-path>
 
@@ -11,7 +10,7 @@ OPTIONS:
 "
 }
 
-if [ "$1" = '-h' ] || [ "$1" = '--help' ] ; then
+if [ "$1" = '-h' ] || [ "$1" = '--help' ]; then
 	_usage
 	exit 0
 fi
@@ -22,10 +21,10 @@ if [ -z "$1" ]; then
 fi
 
 ffmpeg -i "$1" \
-  -vf scale=-2:720 \
-  -c:v libx264 \
-  -crf 40 \
-  -preset veryfast \
-  -c:a aac  \
-  -b:a 64k \
-  "$1"_compressed.mkv
+	-vf scale=-2:720 \
+	-c:v libx264 \
+	-crf 40 \
+	-preset veryfast \
+	-c:a aac \
+	-b:a 64k \
+	"$1"_compressed.mkv

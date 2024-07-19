@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 
-
 # Values can by override
 ENCODING_LIB=${ENCODING_LIB:-libx264}
 RESOLUTION=${RESOLUTION:-1920x1080}
@@ -21,12 +20,15 @@ TESTS=${TESTS:-none}
 COPY=${COPY:-true}
 
 DS_check() {
-    type ffmpeg >/dev/null 2>&1 || { echo "ffmpeg could not be found!" >&2; exit 1; }
+	type ffmpeg >/dev/null 2>&1 || {
+		echo "ffmpeg could not be found!" >&2
+		exit 1
+	}
 }
 
 DS_help() {
-    echo "Usage: ${0##*/} --output <output file>"
-    echo "Others option:
+	echo "Usage: ${0##*/} --output <output file>"
+	echo "Others option:
     --lib libx264, libx265, huffyuv, h263p, hevc_nvenc, nvenc_h264, hevc_qsv, h264_qsv, h264_amf
     --resolution 1920x1080
     --framerate 60, 30...
@@ -39,72 +41,96 @@ DS_help() {
     --ffmpeg_arg=\"<arg 1> <arg2> ...\" additional ffmpeg arguments
     -h or --help
     -v or --version"
-    exit 0
+	exit 0
 }
 
-
 DS_main() {
-    if [[ -z $* ]]; then
-        DS_version
-        DS_help
-        exit 0
-    fi
-  
-    while [[ $# -gt 0 ]] && { [[ "$1" == "--"* ]] || [[ "$1" == "-"* ]]; } ;
-    do
-        opt="$1";
-        shift; 
-        case "$opt" in
-            "--lib" )
-            ENCODING_LIB="$1"; shift;;
-            "--ffmpeg_arg="* )     # alternate format: --first=date
-            FFMPEG_ARG="${opt#*=}";;
-            "--screen" )
-            SCREEN="$1"; shift;;
-            "--framerate" )
-            FRAMERATE="$1"; shift;;
-            "--quality" )
-            QUALITY="$1"; shift;;
-            "--preset" )
-            PRESET="$1"; shift;;
-            "--pixel" )
-            PIXEL="$1"; shift;;
-            "--resolution" )
-            RESOLUTION="$1"; shift;;
-            "--profile" )
-            PROFILE="$1"; shift;;
-            "--level" )
-            LEVEL="$1"; shift;;
-            "--output" )
-            OUTPUT="$1"; shift;;
-            "--help" | "-h" )
-            DS_help;;
-            "--version" | "-v" )
-            DS_version;;
-            "--copy" )
-            COPY=true;;
-            *) echo >&2 "Invalid option: $*"; exit 1;;
-    esac
-    done
-    DS_check
-    DS_exec
+	if [[ -z $* ]]; then
+		DS_version
+		DS_help
+		exit 0
+	fi
+
+	while [[ $# -gt 0 ]] && { [[ "$1" == "--"* ]] || [[ "$1" == "-"* ]]; }; do
+		opt="$1"
+		shift
+		case "$opt" in
+		"--lib")
+			ENCODING_LIB="$1"
+			shift
+			;;
+		"--ffmpeg_arg="*) # alternate format: --first=date
+			FFMPEG_ARG="${opt#*=}" ;;
+		"--screen")
+			SCREEN="$1"
+			shift
+			;;
+		"--framerate")
+			FRAMERATE="$1"
+			shift
+			;;
+		"--quality")
+			QUALITY="$1"
+			shift
+			;;
+		"--preset")
+			PRESET="$1"
+			shift
+			;;
+		"--pixel")
+			PIXEL="$1"
+			shift
+			;;
+		"--resolution")
+			RESOLUTION="$1"
+			shift
+			;;
+		"--profile")
+			PROFILE="$1"
+			shift
+			;;
+		"--level")
+			LEVEL="$1"
+			shift
+			;;
+		"--output")
+			OUTPUT="$1"
+			shift
+			;;
+		"--help" | "-h")
+			DS_help
+			;;
+		"--version" | "-v")
+			DS_version
+			;;
+		"--copy")
+			COPY=true
+			;;
+		*)
+			echo >&2 "Invalid option: $*"
+			exit 1
+			;;
+		esac
+	done
+	DS_check
+	DS_exec
 }
 
 DS_exec() {
-    if [[ -z "$FFMPEG_ARG" ]]; then
-        ffmpeg -f x11grab -video_size "$RESOLUTION" -framerate "$FRAMERATE" -i "$SCREEN" \
-        -vcodec "$ENCODING_LIB" -preset "$PRESET" -qp "$QUALITY" -pix_fmt "$PIXEL" \
-        -profile:v "$PROFILE" -level "$LEVEL" \
-        "$OUTPUT"
-    else
-        ffmpeg "$FFMPEG_ARG" -f x11grab -video_size "$RESOLUTION" -framerate "$FRAMERATE" -i "$SCREEN" \
-        -vcodec "$ENCODING_LIB" -preset "$PRESET" -qp "$QUALITY" -pix_fmt "$PIXEL" \
-        -profile:v "$PROFILE" -level "$LEVEL" \
-        "$OUTPUT"
-    fi
-    
+	if [[ -z "$FFMPEG_ARG" ]]; then
+		ffmpeg -f x11grab -video_size "$RESOLUTION" -framerate "$FRAMERATE" -i "$SCREEN" \
+			-vcodec "$ENCODING_LIB" -preset "$PRESET" -qp "$QUALITY" -pix_fmt "$PIXEL" \
+			-profile:v "$PROFILE" -level "$LEVEL" \
+			"$OUTPUT"
+	else
+		ffmpeg "$FFMPEG_ARG" -f x11grab -video_size "$RESOLUTION" -framerate "$FRAMERATE" -i "$SCREEN" \
+			-vcodec "$ENCODING_LIB" -preset "$PRESET" -qp "$QUALITY" -pix_fmt "$PIXEL" \
+			-profile:v "$PROFILE" -level "$LEVEL" \
+			"$OUTPUT"
+	fi
+
 }
 
 if [[ "$0" == "${BASH_SOURCE[0]}" ]]; then
-  DS_main "$@"
+	DS_main "$@"
 fi

@@ -7,4 +7,3 @@
 
 echo 'FOOL! You left the dollar sign in the command you just pasted!'
 "$@"
-
